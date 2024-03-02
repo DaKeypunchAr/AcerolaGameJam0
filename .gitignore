@@ -24,9 +24,14 @@
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
-*.exe
 *.out
 *.app
+bin/intermediates/*
+
+# VS2022
+.vs/*
+*.sln
+*.vcxproj
+*.vcxproj.user
