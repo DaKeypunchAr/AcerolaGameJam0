@@ -31,7 +31,7 @@ namespace OGL
 	class VAO
 	{
 		public:
-			VAO() = delete;
+			VAO() = default;
 			VAO(const VAO& other) = delete;
 			VAO(unsigned int ebCount, std::vector<unsigned int> vbCounts, std::vector<VBOInfo> vboInfos);
 			~VAO();
@@ -43,6 +43,8 @@ namespace OGL
 
 			void recreateVB(unsigned int vbCount, unsigned int usage, unsigned int bindingIdx) const;
 			void recreateEB(unsigned int ebCount, unsigned int usage) const;
+
+			void initialize(unsigned int ebCount, std::vector<unsigned int> vbCounts, std::vector<VBOInfo> vboInfos);
 
 		private:
 			unsigned int m_VAO, m_EBO;

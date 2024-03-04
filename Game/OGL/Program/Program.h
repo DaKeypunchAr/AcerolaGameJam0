@@ -12,7 +12,7 @@ namespace OGL
 	class Program
 	{
 		public:
-			Program() = delete;
+			Program();
 			Program(const Program& other) = delete;
 			Program(std::string folderPath);
 			Program(std::string vsFilePath, std::string fsFilePath);
@@ -27,8 +27,13 @@ namespace OGL
 
 			unsigned int getUniLoc(std::string uniName) const;
 
-		private:
+			void initialize(std::string folderPath)
+			{
+				initialize(folderPath + "/vertex.glsl", folderPath + "/fragment.glsl");
+			}
 			void initialize(std::string vsFilePath, std::string fsFilePath);
+
+		private:
 			std::string readFile(std::string filePath) const;
 			void compileShader(unsigned int shaderID) const;
 			void linkProgram() const;

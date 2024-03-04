@@ -5,13 +5,12 @@
 
 namespace OGL
 {
+	Program::Program() {}
 	Program::Program(std::string folderPath)
-		: m_ID(glCreateProgram())
 	{
 		initialize(folderPath + "/vertex.glsl", folderPath + "/fragment.glsl");
 	}
 	Program::Program(std::string vsFilePath, std::string fsFilePath)
-		: m_ID(glCreateProgram())
 	{
 		initialize(vsFilePath, fsFilePath);
 	}
@@ -52,6 +51,7 @@ namespace OGL
 
 	void Program::initialize(std::string vsFilePath, std::string fsFilePath)
 	{
+		m_ID = glCreateProgram();
 		unsigned int vs = glCreateShader(GL_VERTEX_SHADER), fs = glCreateShader(GL_FRAGMENT_SHADER);
 
 		std::string vsFile = readFile(vsFilePath), fsFile = readFile(fsFilePath);

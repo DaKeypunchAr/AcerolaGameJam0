@@ -21,7 +21,7 @@ namespace OGL
 	class Texture2D
 	{
 		public:
-			Texture2D() = delete;
+			Texture2D() = default;
 			Texture2D(const Texture2D& other) = delete;
 			Texture2D(std::string imageLocation, TextureFilters filters, unsigned int imgChannels = 4);
 			~Texture2D();
@@ -29,6 +29,8 @@ namespace OGL
 			void bind(unsigned int slot) const;
 
 			void subImage(glm::ivec2 off, glm::ivec2 dim, unsigned char* img) const;
+
+			void initialize(std::string imageLocation, TextureFilters filters, unsigned int imgChannels = 4);
 
 		private:
 			glm::uvec2 m_TextureDimensions;

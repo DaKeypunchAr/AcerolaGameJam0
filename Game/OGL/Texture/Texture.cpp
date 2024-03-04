@@ -6,6 +6,24 @@ namespace OGL
 {
 	Texture2D::Texture2D(std::string imageLocation, TextureFilters filters, unsigned int channels)
 	{
+		initialize(imageLocation, filters, channels);
+	}
+	Texture2D::~Texture2D()
+	{
+		glDeleteTextures(1, &m_ID);
+	}
+
+	void Texture2D::bind(unsigned int slot) const
+	{
+		glBindTextureUnit(slot, m_ID);
+	}
+	void Texture2D::subImage(glm::ivec2 off, glm::ivec2 dim, unsigned char* img) const
+	{
+		glTextureSubImage2D(m_ID, 0, off.x, off.y, dim.x, dim.y, m_Format, GL_UNSIGNED_BYTE, img);
+	}
+
+	void Texture2D::initialize(std::string imageLocation, TextureFilters filters, unsigned int channels)
+	{
 		switch (channels)
 		{
 		case 1:
@@ -44,18 +62,5 @@ namespace OGL
 		glTextureParameteri(m_ID, GL_TEXTURE_WRAP_T, filters.wrapT);
 
 		stbi_image_free(img);
-	}
-	Texture2D::~Texture2D()
-	{
-		glDeleteTextures(1, &m_ID);
-	}
-
-	void Texture2D::bind(unsigned int slot) const
-	{
-		glBindTextureUnit(slot, m_ID);
-	}
-	void Texture2D::subImage(glm::ivec2 off, glm::ivec2 dim, unsigned char* img) const
-	{
-		glTextureSubImage2D(m_ID, 0, off.x, off.y, dim.x, dim.y, m_Format, GL_UNSIGNED_BYTE, img);
 	}
 }
