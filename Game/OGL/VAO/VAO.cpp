@@ -21,13 +21,13 @@ namespace OGL
 		glBindVertexArray(m_VAO);
 	}
 
-	void VAO::updateVB(unsigned int off, unsigned int count, std::vector<float> buffer, unsigned int bindingIdx) const
+	void VAO::updateVB(unsigned int off, std::vector<float> buffer, unsigned int bindingIdx) const
 	{
-		glNamedBufferSubData(m_VBOs[bindingIdx], off * sizeof(float), count * sizeof(float), buffer.data());
+		glNamedBufferSubData(m_VBOs[bindingIdx], off * sizeof(float), buffer.size() * sizeof(float), buffer.data());
 	}
-	void VAO::updateEB(unsigned int off, unsigned int count, std::vector<unsigned int> buffer) const
+	void VAO::updateEB(unsigned int off, std::vector<unsigned int> buffer) const
 	{
-		glNamedBufferSubData(m_EBO, off * sizeof(unsigned int), count * sizeof(unsigned int), buffer.data());
+		glNamedBufferSubData(m_EBO, off * sizeof(unsigned int), buffer.size() * sizeof(unsigned int), buffer.data());
 	}
 
 	void VAO::recreateVB(unsigned int vbCount, unsigned int usage, unsigned int bindingIdx) const

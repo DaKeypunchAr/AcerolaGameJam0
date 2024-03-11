@@ -1,41 +1,38 @@
 #include "Game.h"
 
+#include "GLFW/glfw3.h"
+
+#include <iostream>
+
 namespace Game
 {
-	Game::Game(glm::uvec2 windowDimensions)
-		: cam(glm::vec2(0, windowDimensions.x), glm::vec2(0, windowDimensions.y))
+	Game::Game()
+		: cam(glm::vec2(0, windowDimension.x), glm::vec2(0, windowDimension.y)), atlas("Resources/Fonts/teeny-tiny-font.ttf"), player(this)
 	{
-		std::vector<unsigned int> eb{
-		0, 1, 2,
-		1, 2, 3,
-		};
-
-		std::vector<float> vb{
-			-0.5f, -0.5f, 0.0f, 0.0f,
-			+0.5f, -0.5f, 1.0f, 0.0f,
-			-0.5f, +0.5f, 0.0f, 1.0f,
-			+0.5f, +0.5f, 1.0f, 1.0f,
-		};
-
-		texture.initialize("Resources/Textures/sample.png", pixelArtFilter);
-		program.initialize("Resources/Shaders/Sample");
-
-		vao.initialize(6, { 16 }, { OGL::VBOInfo(0, GL_STATIC_DRAW, 4 * sizeof(float), { OGL::AttribInfo(0, 2, 0), OGL::AttribInfo(1, 2, 2 * sizeof(float))}) });
-		vao.updateEB(0, 6, eb);
-		vao.updateVB(0, 16, vb, 0);
+		colorProgram.initialize("Resources/Shaders/Color");
+		textureProgram.initialize("Resources/Shaders/Texture");
+		textProgram.initialize("Resources/Shaders/Text");
 	}
 
 	void Game::draw()
 	{
-		vao.bind();
-		texture.bind(0);
-		program.use();
-		program.uni1i("tex", 0);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		player.draw(textureProgram);
+		floorManager.drawFloors();
+		ui.drawUI();
 	}
 
 	void Game::update()
 	{
+		double dt = glfwGetTime() - lastTick;
 
+		floorManager.update(dt);
+		player.update(dt);
+		ui.updateUI(dt);
+
+		lastTick = glfwGetTime();
 	}
+
+	/* normalizeScreenSpace() is in Entity.cpp */
+
+	glm::uvec2 Game::windowDimension = glm::uvec2(1920, 1080);
 }

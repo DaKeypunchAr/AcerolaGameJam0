@@ -69,6 +69,7 @@ void __stdcall OGLDebugCallback(unsigned int source, unsigned int type, unsigned
 	}
 
 	std::cerr << "Debug Callback:\n\t" << sourceStr << "\n\t" << typeStr << "\n\tID: " << id << "\n\t" << severityStr << "\n\tLength: " << length << "\nMessage:\n" << message << "\n";
+	__debugbreak();
 }
 
 namespace OGL
@@ -87,6 +88,7 @@ namespace OGL
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
 		*window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, title, nullptr, nullptr);
 
@@ -97,6 +99,7 @@ namespace OGL
 			exit(EXIT_FAILURE);
 		}
 		glfwMakeContextCurrent(*window);
+		glfwMaximizeWindow(*window);
 
 		if (glewInit())
 		{
@@ -108,6 +111,9 @@ namespace OGL
 
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(OGLDebugCallback, nullptr);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	void terminateContext(GLFWwindow** window)
 	{

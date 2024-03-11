@@ -3,28 +3,47 @@
 
 #include "../OGL/OGL.h"
 #include "Camera/Camera.h"
+#include "Entity/Entity.h"
+#include "Player/Player.h"
+#include "Floor/FloorManager.h"
+#include "TextRenderer/TextRenderer.h"
+#include "UI/UI.h"
+
+static OGL::TextureFilters pixelArtFilter = { GL_NEAREST, GL_REPEAT };
+
+#include <array>
 
 namespace Game
 {
 	class Game
 	{
-		public:
-			Game(glm::uvec2 windowDimensions);
-			~Game() = default;
+	public:
+		Game();
+		~Game() = default;
 
-			void draw();
-			void update();
+		void draw();
+		void update();
 
-		private:
-			Camera cam;
+		static constexpr glm::vec2 normalizedScreenSpace(glm::vec2 p);
+		static glm::uvec2 windowDimension;
 
-			OGL::VAO vao;
-			OGL::Program program;
-			OGL::Texture2D texture;
+	private:
+		Camera cam;
 
-		private:
-			/* Constants */
-			const OGL::TextureFilters pixelArtFilter = { GL_NEAREST, GL_REPEAT };
+		OGL::Program colorProgram;
+		OGL::Program textureProgram;
+		OGL::Program textProgram;
+
+		TextTextureAtlas atlas;
+
+		Player player;
+		UI ui;
+
+		FloorManager floorManager;
+
+		double lastTick = 0;
+
+		friend Player;
 	};
 }
 

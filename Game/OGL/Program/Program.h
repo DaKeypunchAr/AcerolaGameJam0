@@ -3,6 +3,7 @@
 
 #include "GLEW/glew.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include <string>
 #include <fstream>
@@ -24,6 +25,7 @@ namespace OGL
 			void uni2f(std::string uniName, glm::vec2 vec) const;
 			void uni3f(std::string uniName, glm::vec3 vec) const;
 			void uni4f(std::string uniName, glm::vec4 vec) const;
+			void uniMat4(std::string uniName, glm::mat4 mat) const;
 
 			unsigned int getUniLoc(std::string uniName) const;
 

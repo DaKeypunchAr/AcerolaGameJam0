@@ -38,8 +38,8 @@ namespace OGL
 
 			void bind() const;
 
-			void updateVB(unsigned int off, unsigned int size, std::vector<float> buffer, unsigned int bindingIdx) const;
-			void updateEB(unsigned int off, unsigned int size, std::vector<unsigned int> buffer) const;
+			void updateVB(unsigned int off, std::vector<float> buffer, unsigned int bindingIdx) const;
+			void updateEB(unsigned int off, std::vector<unsigned int> buffer) const;
 
 			void recreateVB(unsigned int vbCount, unsigned int usage, unsigned int bindingIdx) const;
 			void recreateEB(unsigned int ebCount, unsigned int usage) const;

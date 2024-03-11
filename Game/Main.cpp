@@ -1,25 +1,45 @@
 #include "Game/Game.h"
 
-constexpr glm::uvec2 windowDimensions = glm::uvec2(1600, 900);
+#include <iostream>
 
 int main()
 {
 	GLFWwindow* window{};
 
-	OGL::initializeContext(&window, windowDimensions, "Acerola Game Jam 0");
+	OGL::initializeContext(&window, Game::Game::windowDimension, "Acerola Game Jam 0");
 
-	Game::Game game(windowDimensions);
+	Game::Game game;
 
 	constexpr glm::vec4 bgColor(0.3F, 0.3F, 0.3F, 1.0F);
 	glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
 
+	glfwMakeContextCurrent(window);
+
+	int width{}, height{};
+	glfwGetWindowSize(window, &width, &height);
+
+	Game::Game::windowDimension = { width, height };
+
+	unsigned int FPS = 60u;
+	double frameTime = 1.0 / FPS;
+
+	double lastTime = glfwGetTime();
+
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		if (glfwGetTime() > lastTime + frameTime)
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
 
-		game.draw();
+			game.update();
+			game.draw();
 
-		glfwSwapBuffers(window);
+			glfwSwapBuffers(window);
+			lastTime = glfwGetTime();
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) break;
+
 		glfwPollEvents();
 	}
 

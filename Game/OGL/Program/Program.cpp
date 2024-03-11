@@ -5,7 +5,7 @@
 
 namespace OGL
 {
-	Program::Program() {}
+ 	Program::Program() {}
 	Program::Program(std::string folderPath)
 	{
 		initialize(folderPath + "/vertex.glsl", folderPath + "/fragment.glsl");
@@ -42,6 +42,10 @@ namespace OGL
 	void Program::uni4f(std::string uniName, glm::vec4 vec) const
 	{
 		glUniform4f(getUniLoc(uniName), vec.x, vec.y, vec.z, vec.w);
+	}
+	void Program::uniMat4(std::string uniName, glm::mat4 mat) const
+	{
+		glUniformMatrix4fv(getUniLoc(uniName), 1, GL_FALSE, glm::value_ptr(mat));
 	}
 
 	unsigned int Program::getUniLoc(std::string uniName) const
