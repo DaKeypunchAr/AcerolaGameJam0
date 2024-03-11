@@ -154,4 +154,11 @@ namespace Game
 			m_VAO.bind();
 			glDrawElements(GL_TRIANGLES, 6 * textLength, GL_UNSIGNED_INT, nullptr);
 		}
+
+	float TextTextureAtlas::getTextWidth(std::string text, float scale) const
+	{
+		float width{};
+		for (char c : text) width += chars[c - 32].advance.x;
+		return width * scale;
+	}
 }

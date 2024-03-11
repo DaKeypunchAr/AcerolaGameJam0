@@ -37,10 +37,10 @@ namespace Game
 			else vel.y += fallGravity * dt;
 		}
 
-		vel.x = glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_D) - glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_A);
+		vel.x = glfwGetKey(glfwGetCurrentContext(), game->rightButton) - glfwGetKey(glfwGetCurrentContext(), game->leftButton);
 		vel.x *= playerSpeed;
 
-		if (onFloor && glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_SPACE))
+		if (onFloor && glfwGetKey(glfwGetCurrentContext(), game->jumpButton))
 		{
 			vel.y = playerInitJumpVelY;
 			onFloor = false;

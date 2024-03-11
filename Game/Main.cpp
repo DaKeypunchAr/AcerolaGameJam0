@@ -10,7 +10,7 @@ int main()
 
 	Game::Game game;
 
-	constexpr glm::vec4 bgColor(0.3F, 0.3F, 0.3F, 1.0F);
+	constexpr glm::vec4 bgColor = glm::vec4(39, 0, 34, 255) / 255.0f;
 	glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
 
 	glfwMakeContextCurrent(window);

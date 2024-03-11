@@ -26,6 +26,8 @@ namespace Game
 			TextTextureAtlas(std::string fontFileLoc);
 			void renderText(std::string text, glm::vec2 pos, glm::vec4 color, float scale);
 
+			float getTextWidth(std::string text, float scale) const;
+
 		private:
 			void updateSize();
 

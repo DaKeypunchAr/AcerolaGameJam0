@@ -9,6 +9,8 @@
 #include "TextRenderer/TextRenderer.h"
 #include "UI/UI.h"
 
+#include <random>
+
 static OGL::TextureFilters pixelArtFilter = { GL_NEAREST, GL_REPEAT };
 
 #include <array>
@@ -27,12 +29,20 @@ namespace Game
 		static constexpr glm::vec2 normalizedScreenSpace(glm::vec2 p);
 		static glm::uvec2 windowDimension;
 
-	private:
+		glm::ivec2 randomTime() const;
+		unsigned int randomKey() const;
+
+		std::string getKeyName(unsigned int key) const;
+
+	public:
 		Camera cam;
 
 		OGL::Program colorProgram;
 		OGL::Program textureProgram;
 		OGL::Program textProgram;
+
+		unsigned int leftButton = GLFW_KEY_A, rightButton = GLFW_KEY_D, jumpButton = GLFW_KEY_SPACE;
+		glm::ivec2 twistTimer = glm::ivec2(1);
 
 		TextTextureAtlas atlas;
 
