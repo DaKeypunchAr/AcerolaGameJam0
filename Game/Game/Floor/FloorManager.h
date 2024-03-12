@@ -8,21 +8,28 @@
 namespace Game
 {
 	class Game;
+	class Camera;
 	class FloorManager
 	{
 		public:
-			FloorManager();
+			FloorManager(const Game* const game);
 			~FloorManager() = default;
 
-			void drawFloors();
+			void drawFloors(const Camera& cam);
 			void update(double dt);
 
 			const Floor& isColliding(Rectangle& hitbox) const;
+			glm::vec2 playerCoords() const;
 
 		private:
-			std::array<Floor, 1> floors;
+			std::array<Floor, 10> floors;
 			OGL::Program textureProgram;
 			Floor uninitializedFloor;
+			Floor* highestFloor;
+			float highestY = 300;
+			float yDiff = 250;
+			float maximumFloorOffset = 300.0f;
+			const Game* const game;
 	};
 }
 

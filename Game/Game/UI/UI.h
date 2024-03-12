@@ -43,7 +43,7 @@ namespace Game
 			float paddingX = 6.0F;
 			float paddingY = 4.0F;
 
-			glm::vec2 leftButtonPos, rightButtonPos, jumpButtonPos;
+			glm::vec2 leftButtonPos, rightButtonPos, jumpButtonPos, scorePos;
 
 			Game* const game;
 	};

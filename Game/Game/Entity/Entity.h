@@ -5,6 +5,7 @@
 
 namespace Game
 {
+	class Camera;
 	class Entity
 	{
 		public:
@@ -12,7 +13,7 @@ namespace Game
 			Entity(glm::vec2 size, glm::vec4 color, std::string imageLocation, OGL::TextureFilters filters);
 			~Entity() = default;
 
-			void draw(const OGL::Program& program);
+			void draw(const OGL::Program& program, const Camera& cam);
 
 			void setPos(glm::vec2);
 			glm::vec2 getPos() const;

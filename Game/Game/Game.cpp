@@ -7,17 +7,18 @@
 namespace Game
 {
 	Game::Game()
-		: cam(glm::vec2(0, windowDimension.x), glm::vec2(0, windowDimension.y)), atlas("Resources/Fonts/teeny-tiny-font.ttf"), player(this), ui(this)
+		: cam(windowDimension), atlas("Resources/Fonts/teeny-tiny-font.ttf"), floorManager(this), player(this), ui(this)
 	{
-		colorProgram.initialize("Resources/Shaders/Color");
-		textureProgram.initialize("Resources/Shaders/Texture");
-		textProgram.initialize("Resources/Shaders/Text");
+        uiColorProgram.initialize("Resources/Shaders/UI-Color");
+        uiTextureProgram.initialize("Resources/Shaders/UI-Texture");
+        textProgram.initialize("Resources/Shaders/Text");
+        gameTextureProgram.initialize("Resources/Shaders/Game-Texture");
 	}
 
 	void Game::draw()
 	{
-		player.draw(textureProgram);
-		floorManager.drawFloors();
+		player.draw(gameTextureProgram, cam);
+		floorManager.drawFloors(cam);
 		ui.drawUI();
 	}
 
@@ -38,6 +39,27 @@ namespace Game
             jumpButton = randomKey();
             while (jumpButton == leftButton || jumpButton == rightButton) jumpButton = randomKey();
 		}
+
+        if (cam.getTranslation() != camTranslation)
+        {
+            if (lastTranslation == glm::vec2(3.0f, 0.0f))
+            {
+                lastCameraMoveTime = glfwGetTime();
+                lastTranslation = cam.getTranslation();
+            }
+            else
+            {
+                auto lerp = [](const glm::vec2& a, const glm::vec2& b, float t) {
+                    return (1.0f - t) * a + t * b;
+                };
+                cam.setTranslation(lerp(lastTranslation, camTranslation, (float)((glfwGetTime()-lastCameraMoveTime)*(glfwGetTime()-lastCameraMoveTime))));
+            }
+            if (((glfwGetTime() - lastCameraMoveTime) * (glfwGetTime() - lastCameraMoveTime)) > 1)
+            {
+                lastTranslation = glm::vec2(3.0f, 0.0f);
+                cam.setTranslation(camTranslation);
+            }
+        }
 
 		lastTick = glfwGetTime();
 	}
@@ -68,91 +90,30 @@ namespace Game
 	}
 	unsigned int Game::randomKey() const
 	{
-        std::vector<int> laptopKeys = {
-            GLFW_KEY_SPACE,
-            GLFW_KEY_APOSTROPHE,
-            GLFW_KEY_COMMA,
-            GLFW_KEY_MINUS,
-            GLFW_KEY_PERIOD,
-            GLFW_KEY_SLASH,
-            GLFW_KEY_0,
-            GLFW_KEY_1,
-            GLFW_KEY_2,
-            GLFW_KEY_3,
-            GLFW_KEY_4,
-            GLFW_KEY_5,
-            GLFW_KEY_6,
-            GLFW_KEY_7,
-            GLFW_KEY_8,
-            GLFW_KEY_9,
-            GLFW_KEY_SEMICOLON,
-            GLFW_KEY_EQUAL,
-            GLFW_KEY_A,
-            GLFW_KEY_B,
-            GLFW_KEY_C,
-            GLFW_KEY_D,
-            GLFW_KEY_E,
-            GLFW_KEY_F,
-            GLFW_KEY_G,
-            GLFW_KEY_H,
-            GLFW_KEY_I,
-            GLFW_KEY_J,
-            GLFW_KEY_K,
-            GLFW_KEY_L,
-            GLFW_KEY_M,
-            GLFW_KEY_N,
-            GLFW_KEY_O,
-            GLFW_KEY_P,
-            GLFW_KEY_Q,
-            GLFW_KEY_R,
-            GLFW_KEY_S,
-            GLFW_KEY_T,
-            GLFW_KEY_U,
-            GLFW_KEY_V,
-            GLFW_KEY_W,
-            GLFW_KEY_X,
-            GLFW_KEY_Y,
-            GLFW_KEY_Z,
-            GLFW_KEY_LEFT_BRACKET,
-            GLFW_KEY_BACKSLASH,
-            GLFW_KEY_RIGHT_BRACKET,
-            GLFW_KEY_GRAVE_ACCENT,
-            GLFW_KEY_ESCAPE,
-            GLFW_KEY_ENTER,
-            GLFW_KEY_TAB,
-            GLFW_KEY_BACKSPACE,
-            GLFW_KEY_INSERT,
-            GLFW_KEY_DELETE,
-            GLFW_KEY_RIGHT,
-            GLFW_KEY_LEFT,
-            GLFW_KEY_DOWN,
-            GLFW_KEY_UP,
-            GLFW_KEY_PAGE_UP,
-            GLFW_KEY_PAGE_DOWN,
-            GLFW_KEY_HOME,
-            GLFW_KEY_END,
-            GLFW_KEY_CAPS_LOCK,
-            GLFW_KEY_NUM_LOCK,
-            GLFW_KEY_PRINT_SCREEN,
-            GLFW_KEY_PAUSE,
-            GLFW_KEY_LEFT_SHIFT,
-            GLFW_KEY_LEFT_CONTROL,
-            GLFW_KEY_LEFT_ALT,
-            GLFW_KEY_LEFT_SUPER,
-            GLFW_KEY_RIGHT_SHIFT,
-            GLFW_KEY_RIGHT_CONTROL,
-            GLFW_KEY_RIGHT_ALT,
-            GLFW_KEY_RIGHT_SUPER,
-            GLFW_KEY_MENU
+        std::vector<int> keys = {
+            GLFW_KEY_SPACE, GLFW_KEY_APOSTROPHE, GLFW_KEY_COMMA, GLFW_KEY_MINUS,
+            GLFW_KEY_PERIOD, GLFW_KEY_SLASH, GLFW_KEY_0, GLFW_KEY_1, GLFW_KEY_2,
+            GLFW_KEY_3, GLFW_KEY_4, GLFW_KEY_5, GLFW_KEY_6, GLFW_KEY_7, GLFW_KEY_8,
+            GLFW_KEY_9, GLFW_KEY_SEMICOLON, GLFW_KEY_EQUAL, GLFW_KEY_A, GLFW_KEY_B,
+            GLFW_KEY_C, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_F, GLFW_KEY_G, GLFW_KEY_H,
+            GLFW_KEY_I, GLFW_KEY_J, GLFW_KEY_K, GLFW_KEY_L, GLFW_KEY_M, GLFW_KEY_N,
+            GLFW_KEY_O, GLFW_KEY_P, GLFW_KEY_Q, GLFW_KEY_R, GLFW_KEY_S, GLFW_KEY_T,
+            GLFW_KEY_U, GLFW_KEY_V, GLFW_KEY_W, GLFW_KEY_X, GLFW_KEY_Y, GLFW_KEY_Z,
+            GLFW_KEY_ESCAPE, GLFW_KEY_ENTER, GLFW_KEY_TAB, GLFW_KEY_BACKSPACE,
+            GLFW_KEY_LEFT_SHIFT, GLFW_KEY_LEFT_CONTROL, GLFW_KEY_LEFT_ALT,
+            GLFW_KEY_RIGHT_SHIFT, GLFW_KEY_RIGHT_CONTROL, GLFW_KEY_RIGHT_ALT
         };
 
         // Random number generator
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> distrib(0, laptopKeys.size() - 1);
+        std::uniform_int_distribution<int> distribution(0, keys.size() - 1);
 
-        // Choose a random key from the list
-        return laptopKeys[distrib(gen)];
+        // Generate random index
+        int randomIndex = distribution(gen);
+
+        // Return random key
+        return keys[randomIndex];
 	}
     std::string Game::getKeyName(unsigned int key) const
     {
@@ -338,6 +299,20 @@ namespace Game
         default:
             return "Unknown";
         }
+    }
+    std::string Game::getScore() const
+    {
+        std::string score = "Score: ";
+
+        auto ansIn4Digit = [&](int i)
+            {
+                if (i < 10) return std::string("000") + std::to_string(i);
+                else if (i < 100) return std::string("00") + std::to_string(i);
+                else if (i < 1000) return std::string("0") + std::to_string(i);
+                else return std::to_string(i);
+            };
+
+        return score + ansIn4Digit(cam.getTranslation().y / -25.0f);
     }
 
 	/* normalizeScreenSpace() is in Entity.cpp */

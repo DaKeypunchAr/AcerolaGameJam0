@@ -4,11 +4,11 @@
 
 namespace Game
 {
-	Player::Player(const Game* const game)
-		: Entity(glm::vec2(), glm::vec4(), "Resources/Textures/player-Sheet.png", pixelArtFilter), game(game), vel()
+	Player::Player(Game* const game)
+		: Entity(glm::vec2(0), glm::vec4(1), "Resources/Textures/player-Sheet.png", pixelArtFilter), game(game), vel()
 	{
 		m_TextureUVs = glm::vec4(0.0F, 0.0F, 1.0F / 9.0F, 1.0F);
-		m_Position = glm::vec2(700.0F, 700.0F);
+		m_Position = game->floorManager.playerCoords();
 		m_Size = glm::vec2(m_Texture.getTextureDimensions().x / 9.0F, m_Texture.getTextureDimensions().y)*playerSize;
 
 		hitbox.setPos(m_Position);
@@ -17,16 +17,6 @@ namespace Game
 
 	void Player::update(double dt)
 	{
-		if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_R))
-		{
-			m_Position = glm::vec2(700.0F); vel.y = 0;
-		}
-
-		if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_P)) __debugbreak();
-
-		hitbox.setPos(m_Position);
-		hitbox.setDimension(m_Size);
-
 		solveCollisions();
 		const Floor& collidedFloor = game->floorManager.isColliding(hitbox);
 		onFloor = collidedFloor.initialized;
@@ -38,16 +28,21 @@ namespace Game
 		}
 
 		vel.x = glfwGetKey(glfwGetCurrentContext(), game->rightButton) - glfwGetKey(glfwGetCurrentContext(), game->leftButton);
-		vel.x *= playerSpeed;
+		vel.x *= (onFloor) ? playerSpeed : playerJumpXVel;
 
-		if (onFloor && glfwGetKey(glfwGetCurrentContext(), game->jumpButton))
+		if (onFloor && glfwGetKey(glfwGetCurrentContext(), game->jumpButton) && jumpLanded)
 		{
 			vel.y = playerInitJumpVelY;
 			onFloor = false;
+			jumpLanded = false;
 		}
 
 		oldY = m_Position.y;
 		m_Position += vel * (float) dt;
+
+		hitbox.setPos(m_Position);
+		hitbox.setDimension(m_Size);
+
 		solveCollisions();
 		handleAnimation();
 	}
@@ -60,10 +55,12 @@ namespace Game
 		{
 			glm::vec2 floorTR = collidedFloor.getPos() + collidedFloor.getSize();
 
-			if (vel.y < 0 || oldY < floorTR.y)
+			if (vel.y <= 0 && oldY >= floorTR.y)
 			{
 				m_Position.y = floorTR.y;
 				vel.y = 0;
+				game->camTranslation = glm::vec2(0, -(collidedFloor.getPos().y - 300));
+				jumpLanded = true;
 			}
 		}
     }

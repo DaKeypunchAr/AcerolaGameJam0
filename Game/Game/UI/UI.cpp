@@ -12,10 +12,10 @@ namespace Game
 
 		std::vector<float> barPosBuffer
 		{
-			-1.0f, -1.0f,
-			+1.0f, -1.0f,
-			-1.0f, Game::normalizedScreenSpace(glm::vec2(0.0f, barHeight * scalingFactor)).y,
-			+1.0f, Game::normalizedScreenSpace(glm::vec2(0.0f, barHeight * scalingFactor)).y
+			0.0f, 0.0f,
+			1920.0f, 0.0f,
+			0.0f, barHeight * scalingFactor,
+			1920.0f, barHeight * scalingFactor
 		};
 		std::vector<float> barColorBuffer
 		{
@@ -33,13 +33,9 @@ namespace Game
 #pragma region Initializing Clock
 		glm::vec2 clockBL = glm::vec2(paddingX, paddingY) * scalingFactor;
 		glm::vec2 clockTR = clockBL + glm::vec2(15, 15) * clockScale; // Jump Key Size
-
 		timePos = { clockTR.x + paddingX, clockBL.y + 10.0f };
 
-		clockBL = Game::normalizedScreenSpace(clockBL);
-		clockTR = Game::normalizedScreenSpace(clockTR);
-
-		infos[1] = OGL::VBOInfo(1, GL_DYNAMIC_DRAW, 2 * sizeof(float), { OGL::AttribInfo(2, 2, 0) });
+		infos[1] = OGL::VBOInfo(1, GL_DYNAMIC_DRAW, 2 * sizeof(float), { OGL::AttribInfo(1, 2, 0) });
 		clockVAO.initialize(6, { 8, 8 }, infos);
 		clockVAO.updateEB(0, { 0, 1, 2, 1, 2, 3 });
 
@@ -69,7 +65,7 @@ namespace Game
 
 		infos.clear();
 		infos.push_back(OGL::VBOInfo(0, GL_STATIC_DRAW, 2 * sizeof(float), { OGL::AttribInfo(0, 2, 0) }));
-		infos.push_back(OGL::VBOInfo(1, GL_STATIC_DRAW, 2 * sizeof(float), { OGL::AttribInfo(2, 2, 0) }));
+		infos.push_back(OGL::VBOInfo(1, GL_STATIC_DRAW, 2 * sizeof(float), { OGL::AttribInfo(1, 2, 0) }));
 
 		keyVAO.initialize(36, { 48, 48 }, infos);
 
@@ -80,20 +76,14 @@ namespace Game
 		glm::vec2 jumpBL = glm::vec2(480, paddingY * scalingFactor);
 		glm::vec2 jumpTR = jumpBL + glm::vec2(35, 12) * scalingFactor;
 		jumpButtonPos = glm::vec2(jumpTR.x + 30.0f, jumpBL.y + 15.0f);
-		jumpBL = Game::normalizedScreenSpace(jumpBL);
-		jumpTR = Game::normalizedScreenSpace(jumpTR);
 
 		glm::vec2 leftBL = glm::vec2(960, paddingY * scalingFactor);
 		glm::vec2 leftTR = leftBL + glm::vec2(29, 12) * scalingFactor;
 		leftButtonPos = glm::vec2(leftTR.x + 30.0f, leftBL.y + 15.0f);
-		leftBL = Game::normalizedScreenSpace(leftBL);
-		leftTR = Game::normalizedScreenSpace(leftTR);
 
 		glm::vec2 rightBL = glm::vec2(1440, paddingY * scalingFactor);
 		glm::vec2 rightTR = rightBL + glm::vec2(39, 12) * scalingFactor;
 		rightButtonPos = glm::vec2(rightTR.x + 30.0f, rightBL.y + 15.0f);
-		rightBL = Game::normalizedScreenSpace(rightBL);
-		rightTR = Game::normalizedScreenSpace(rightTR);
 
 		std::vector<float> keyPosBuffer
 		{
@@ -142,17 +132,23 @@ namespace Game
 		keyVAO.updateVB(0, keyPosBuffer, 0);
 		keyVAO.updateVB(0, keyTexCoordsBuffer, 1);
 #pragma endregion
+
+		scorePos = glm::vec2(Game::windowDimension.x - game->atlas.getTextWidth("Score: 0000", timeFontSize) - 60.0f, Game::windowDimension.y - timeFontSize * 20.0f - 40.0f);
 	}
 
 	void UI::drawUI()
 	{
-		game->colorProgram.use();
+		game->uiColorProgram.use();
+		game->uiColorProgram.uniMat4("viewMatrix", game->cam.getViewMatrix());
+		game->uiColorProgram.uniMat4("projMatrix", game->cam.getProjectionMatrix());
 		barVAO.bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-		game->textureProgram.use();
+		game->uiTextureProgram.use();
+		game->uiTextureProgram.uniMat4("viewMatrix", game->cam.getViewMatrix());
+		game->uiTextureProgram.uniMat4("projMatrix", game->cam.getProjectionMatrix());
 		clockTexture.bind(0);
-		game->textureProgram.uni1i("tex", 0);
+		game->uiTextureProgram.uni1i("tex", 0);
 		clockVAO.bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
@@ -160,11 +156,11 @@ namespace Game
 		keyVAO.bind();
 		glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, nullptr);
 
-		game->textProgram.use();
-		game->atlas.renderText(getTime(), timePos, timeColor, timeFontSize);
-		game->atlas.renderText(game->getKeyName(game->jumpButton), jumpButtonPos, timeColor, timeFontSize);
-		game->atlas.renderText(game->getKeyName(game->leftButton), leftButtonPos, timeColor, timeFontSize);
-		game->atlas.renderText(game->getKeyName(game->rightButton), rightButtonPos, timeColor, timeFontSize);
+		game->atlas.renderText(getTime(), timePos, timeColor, timeFontSize, game->textProgram, game->cam);
+		game->atlas.renderText(game->getKeyName(game->jumpButton), jumpButtonPos, timeColor, timeFontSize, game->textProgram, game->cam);
+		game->atlas.renderText(game->getKeyName(game->leftButton), leftButtonPos, timeColor, timeFontSize, game->textProgram, game->cam);
+		game->atlas.renderText(game->getKeyName(game->rightButton), rightButtonPos, timeColor, timeFontSize, game->textProgram, game->cam);
+		game->atlas.renderText(game->getScore(), scorePos, timeColor, timeFontSize, game->textProgram, game->cam);
 	}
 
 	void UI::updateUI(double dt)

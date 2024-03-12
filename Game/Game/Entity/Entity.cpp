@@ -58,10 +58,10 @@ namespace Game
 	}
 	glm::vec4 Entity::getUVs() const { return m_TextureUVs; }
 
-	void Entity::draw(const OGL::Program& program)
+	void Entity::draw(const OGL::Program& program, const Camera& cam)
 	{
-		glm::vec2 normBL = Game::normalizedScreenSpace(m_Position);
-		glm::vec2 normTR = Game::normalizedScreenSpace(m_Position + m_Size);
+		glm::vec2 normBL = m_Position;
+		glm::vec2 normTR = m_Position + m_Size;
 
 		std::vector<float> posVB
 		{
@@ -99,12 +99,9 @@ namespace Game
 		m_Texture.bind(0);
 		program.uni1i("tex", 0);
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-	}
+		program.uniMat4("viewMatrix", cam.getViewMatrix());
+		program.uniMat4("projMatrix", cam.getProjectionMatrix());
 
-	constexpr glm::vec2 Game::normalizedScreenSpace(glm::vec2 p)
-	{
-		glm::vec2 slope = glm::vec2(2.0F) / glm::vec2(windowDimension.x, windowDimension.y);
-		return p * slope - glm::vec2(1.0F);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 	}
 }

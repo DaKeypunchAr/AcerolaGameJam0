@@ -9,26 +9,27 @@ namespace Game
 	class Camera
 	{
 		public:
-			Camera(glm::vec2 xbounds, glm::vec2 ybounds)
-				: m_Pos(), m_CamXBounds(xbounds), m_CamYBounds(ybounds) {}
+			Camera(glm::vec2 windowSize)
+				: m_Translation(0), m_WindowSize(windowSize) {}
 			~Camera() = default;
 
 			glm::mat4 getViewMatrix() const
 			{
-				return glm::lookAt(glm::vec3(m_Pos.x, m_Pos.y, -3.0F), glm::vec3(m_Pos.x, m_Pos.y, 100.0F), glm::vec3(0.0F, 1.0F, 0.0F));
+				return glm::translate(glm::mat4(1.0f), glm::vec3(m_Translation, 0.0f));
 			}
 			glm::mat4 getProjectionMatrix() const
 			{
-				return glm::ortho(m_CamXBounds.x, m_CamXBounds.y, m_CamYBounds.x, m_CamYBounds.y);
+				return glm::ortho(0.0f, m_WindowSize.x,
+					0.0f, m_WindowSize.y,
+					-1.0f, 1.0f);
 			}
 
-			void setPosition(glm::vec2 pos) { m_Pos = pos; }
-			glm::vec2 getPosition() const { return m_Pos; }
+			void setTranslation(glm::vec2 translation) { m_Translation = translation; }
+			glm::vec2 getTranslation() const { return m_Translation; }
 
 		private:
-			glm::vec2 m_Pos;
-			const glm::vec2 m_CamYBounds;
-			const glm::vec2 m_CamXBounds;
+			glm::vec2 m_Translation;
+			const glm::vec2 m_WindowSize;
 	};
 }
 

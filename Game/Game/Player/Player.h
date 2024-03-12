@@ -11,7 +11,7 @@ namespace Game
 	class Player : public Entity
 	{
 		public:
-			Player(const Game* const game);
+			Player(Game* const game);
 			~Player() = default;
 
 			void update(double dt);
@@ -24,10 +24,10 @@ namespace Game
 
 			Rectangle hitbox;
 
-			float maximumPlayerJumpHeight = 200.0F;
+			float maximumPlayerJumpHeight = 300.0F;
 			float playerJumpXVel = 230.0F;
-			float playerJumpPeakX = 130.0F;
-			float playerJumpPeakToGroundX = 60.0F;
+			float playerJumpPeakX = 250.0F;
+			float playerJumpPeakToGroundX = 100.0F;
 
 			float playerInitJumpVelY = 2 * maximumPlayerJumpHeight * playerJumpXVel / playerJumpPeakX;
 			float jumpGravity = -playerInitJumpVelY * playerJumpXVel / playerJumpPeakX;
@@ -43,10 +43,12 @@ namespace Game
 			unsigned int animationIdx = 0;
 			bool mirrorHorizontal = false;
 
-		private:
-			const Game* const game;
+			bool jumpLanded = true;
 
-			const float playerSize = 4.5F;
+		private:
+			Game* const game;
+
+			const float playerSize = 3.0F;
 	};
 }
 

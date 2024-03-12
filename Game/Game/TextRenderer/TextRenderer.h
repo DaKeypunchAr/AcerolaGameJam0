@@ -24,7 +24,7 @@ namespace Game
 	{
 		public:
 			TextTextureAtlas(std::string fontFileLoc);
-			void renderText(std::string text, glm::vec2 pos, glm::vec4 color, float scale);
+			void renderText(std::string text, glm::vec2 pos, glm::vec4 color, float scale, const OGL::Program& program, const Camera& cam);
 
 			float getTextWidth(std::string text, float scale) const;
 

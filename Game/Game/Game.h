@@ -26,19 +26,20 @@ namespace Game
 		void draw();
 		void update();
 
-		static constexpr glm::vec2 normalizedScreenSpace(glm::vec2 p);
 		static glm::uvec2 windowDimension;
 
 		glm::ivec2 randomTime() const;
 		unsigned int randomKey() const;
 
 		std::string getKeyName(unsigned int key) const;
+		std::string getScore() const;
 
 	public:
 		Camera cam;
 
-		OGL::Program colorProgram;
-		OGL::Program textureProgram;
+		OGL::Program uiColorProgram;
+		OGL::Program uiTextureProgram;
+		OGL::Program gameTextureProgram;
 		OGL::Program textProgram;
 
 		unsigned int leftButton = GLFW_KEY_A, rightButton = GLFW_KEY_D, jumpButton = GLFW_KEY_SPACE;
@@ -46,10 +47,17 @@ namespace Game
 
 		TextTextureAtlas atlas;
 
+		FloorManager floorManager;
+
 		Player player;
 		UI ui;
 
-		FloorManager floorManager;
+		unsigned int score = 0;
+
+		double cameraMovementTime = 1.0f;
+		double lastCameraMoveTime;
+		glm::vec2 camTranslation;
+		glm::vec2 lastTranslation = glm::vec2(3.0f, 0.0f);
 
 		double lastTick = 0;
 

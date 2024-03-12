@@ -86,74 +86,78 @@ namespace Game
 		m_VAO.recreateVB(m_CharacterCapacity * 8, GL_DYNAMIC_DRAW, 2);
 	}
 
-	void TextTextureAtlas::renderText(std::string text, glm::vec2 pos, glm::vec4 color, float scale)
+	void TextTextureAtlas::renderText(std::string text, glm::vec2 pos, glm::vec4 color, float scale, const OGL::Program& program, const Camera& cam)
 	{
-			unsigned int textLength = text.length();
-			if (!textLength) return;
-			m_Texture.bind(0);
+		program.use();
+		program.uniMat4("projMatrix", cam.getProjectionMatrix());
 
-			if (m_CharacterCapacity < textLength)
-			{
-				m_CharacterCapacity = textLength;
-				updateSize();
-			}
+		unsigned int textLength = text.length();
+		if (!textLength) return;
+		m_Texture.bind(0);
+		program.uni1i("tex", 0);
 
-			std::vector<float> posBuffer;
-			std::vector<float> texCoordsBuffer;
-			std::vector<float> colorBuffer;
-
-			posBuffer.reserve(textLength * 8);
-			texCoordsBuffer.reserve(textLength * 8);
-			colorBuffer.reserve(textLength * 16);
-
-			auto vectorPush = [&](std::vector<float>& vec, const std::vector<float>& other)
-				{
-					for (float f : other)
-					{
-						vec.push_back(f);
-					}
-				};
-
-			unsigned int ch = 0;
-			for (const char* c = text.c_str(); *c; c++, ch++)
-			{
-				unsigned int charIdx = (*c) - 32;
-				CharGlyphInfo info = chars[charIdx];
-
-				glm::vec2 tl = Game::normalizedScreenSpace(glm::vec2(info.bearing) * scale + pos);
-				glm::vec2 br = Game::normalizedScreenSpace((glm::vec2(info.bearing) + glm::vec2(info.dimension.x, -info.dimension.y)) * scale + pos);
-
-				vectorPush(posBuffer, {
-					tl.x, tl.y,
-					br.x, tl.y,
-					tl.x, br.y,
-					br.x, br.y,
-				});
-
-				vectorPush(texCoordsBuffer, {
-					info.uv.s, info.uv.t,
-					info.uv.s + info.normDimension.x, info.uv.t,
-					info.uv.s, info.uv.t + info.normDimension.t,
-					info.uv.s + info.normDimension.s, info.uv.t + info.normDimension.t
-				});
-
-				vectorPush(colorBuffer, {
-						color.r, color.g, color.b, color.a,
-						color.r, color.g, color.b, color.a,
-						color.r, color.g, color.b, color.a,
-						color.r, color.g, color.b, color.a,
-				});
-
-				pos += glm::vec2(info.advance) * scale;
-			}
-
-			m_VAO.updateVB(0, posBuffer, 0);
-			m_VAO.updateVB(0, colorBuffer, 1);
-			m_VAO.updateVB(0, texCoordsBuffer, 2);
-
-			m_VAO.bind();
-			glDrawElements(GL_TRIANGLES, 6 * textLength, GL_UNSIGNED_INT, nullptr);
+		if (m_CharacterCapacity < textLength)
+		{
+			m_CharacterCapacity = textLength;
+			updateSize();
 		}
+
+		std::vector<float> posBuffer;
+		std::vector<float> texCoordsBuffer;
+		std::vector<float> colorBuffer;
+
+		posBuffer.reserve(textLength * 8);
+		texCoordsBuffer.reserve(textLength * 8);
+		colorBuffer.reserve(textLength * 16);
+
+		auto vectorPush = [&](std::vector<float>& vec, const std::vector<float>& other)
+			{
+				for (float f : other)
+				{
+					vec.push_back(f);
+				}
+			};
+
+		unsigned int ch = 0;
+		for (const char* c = text.c_str(); *c; c++, ch++)
+		{
+			unsigned int charIdx = (*c) - 32;
+			CharGlyphInfo info = chars[charIdx];
+
+			glm::vec2 tl = glm::vec2(info.bearing) * scale + pos;
+			glm::vec2 br = (glm::vec2(info.bearing) + glm::vec2(info.dimension.x, -info.dimension.y)) * scale + pos;
+
+			vectorPush(posBuffer, {
+				tl.x, tl.y,
+				br.x, tl.y,
+				tl.x, br.y,
+				br.x, br.y,
+			});
+
+			vectorPush(texCoordsBuffer, {
+				info.uv.s, info.uv.t,
+				info.uv.s + info.normDimension.x, info.uv.t,
+				info.uv.s, info.uv.t + info.normDimension.t,
+				info.uv.s + info.normDimension.s, info.uv.t + info.normDimension.t
+			});
+
+			vectorPush(colorBuffer, {
+					color.r, color.g, color.b, color.a,
+					color.r, color.g, color.b, color.a,
+					color.r, color.g, color.b, color.a,
+					color.r, color.g, color.b, color.a,
+			});
+
+			pos += glm::vec2(info.advance) * scale;
+		}
+
+		m_VAO.updateVB(0, posBuffer, 0);
+		m_VAO.updateVB(0, colorBuffer, 1);
+		m_VAO.updateVB(0, texCoordsBuffer, 2);
+
+		m_VAO.bind();
+		glDrawElements(GL_TRIANGLES, 6 * textLength, GL_UNSIGNED_INT, nullptr);
+	}
 
 	float TextTextureAtlas::getTextWidth(std::string text, float scale) const
 	{
