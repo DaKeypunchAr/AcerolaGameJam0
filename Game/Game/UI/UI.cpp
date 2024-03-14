@@ -467,6 +467,10 @@ namespace Game
 				clockIdx = (clockIdx + 1) % 8;
 
 				game->twistTimer.y--;
+				if (game->twistTimer.y < 4 && game->twistTimer.y > 0 && game->twistTimer.x == 0)
+				{
+					game->soloud.play(game->beep);
+				}
 				if (game->twistTimer.y < 0)
 				{
 					game->twistTimer.y = 59; game->twistTimer.x--;

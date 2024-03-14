@@ -8,6 +8,8 @@
 #include "Floor/FloorManager.h"
 #include "TextRenderer/TextRenderer.h"
 #include "UI/UI.h"
+#include "Soloud/soloud.h"
+#include "Soloud/soloud_wav.h"
 
 #include <random>
 
@@ -30,7 +32,7 @@ namespace Game
 	{
 	public:
 		Game();
-		~Game() = default;
+		~Game() { soloud.deinit(); }
 
 		void draw();
 		void update();
@@ -77,6 +79,14 @@ namespace Game
 
 		Player player;
 		UI ui;
+
+		SoLoud::Soloud soloud;
+		SoLoud::Wav death;
+		SoLoud::Wav jump;
+		SoLoud::Wav menu;
+		SoLoud::Wav beep;
+
+		int beeped = 0;
 
 		friend Player;
 	};

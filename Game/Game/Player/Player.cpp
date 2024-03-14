@@ -40,6 +40,7 @@ namespace Game
 
 		if (onFloor && glfwGetKey(glfwGetCurrentContext(), game->jumpButton) && jumpLanded)
 		{
+			game->soloud.play(game->jump);
 			vel.y = playerInitJumpVelY;
 			onFloor = false;
 			jumpLanded = false;
@@ -56,6 +57,7 @@ namespace Game
 
 		if (m_Position.y < -game->cam.getTranslation().y)
 		{
+			game->soloud.play(game->death);
 			game->state = GameState::END;
 		}
 	}

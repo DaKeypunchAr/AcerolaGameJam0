@@ -13,6 +13,12 @@ namespace Game
         uiTextureProgram.initialize("Resources/Shaders/UI-Texture");
         textProgram.initialize("Resources/Shaders/Text");
         gameTextureProgram.initialize("Resources/Shaders/Game-Texture");
+
+        soloud.init();
+        death.load("Resources/Sounds/death.wav");
+        menu.load("Resources/Sounds/menu.wav");
+        jump.load("Resources/Sounds/jump.wav");
+        beep.load("Resources/Sounds/doublebeep.wav");
 	}
 
 	void Game::draw()
@@ -28,7 +34,6 @@ namespace Game
 	void Game::update()
 	{
 		double dt = glfwGetTime() - lastTick;
-
 
         if (state == GameState::PLAY)
         {
@@ -47,6 +52,7 @@ namespace Game
 
             if (twistTimer == glm::ivec2(0))
             {
+                beeped = 0;
                 twistTimer = randomTime();
                 leftButton = randomKey();
                 rightButton = randomKey();
@@ -89,6 +95,7 @@ namespace Game
             {
                 if (!upPressed)
                 {
+                    if (menuIdx) soloud.play(menu);
                     menuIdx--;
                     upPressed = true;
                 }
@@ -98,6 +105,7 @@ namespace Game
             {
                 if (!downPressed)
                 {
+                    if (menuIdx != 2) soloud.play(menu);
                     menuIdx++;
                     downPressed = true;
                 }
@@ -110,6 +118,7 @@ namespace Game
             {
                 if (!waitCounter)
                 {
+                    soloud.play(menu);
                     waitCounter = 20;
                     if (menuIdx == 0)
                     {
@@ -134,6 +143,7 @@ namespace Game
             {
                 if (!waitCounter)
                 {
+                    soloud.play(menu);
                     state = GameState::MAIN_MENU;
                     waitCounter = 20;
                 }
@@ -152,6 +162,7 @@ namespace Game
             }
             if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_R))
             {
+                soloud.play(menu);
                 floorManager.restart();
                 player.restart();
                 cam.setTranslation(glm::vec2(0));
