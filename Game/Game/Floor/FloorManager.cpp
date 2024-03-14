@@ -40,7 +40,7 @@ namespace Game
 	{
 		for (Floor& floor : floors)
 		{
-			if (floor.getPos().y < -game->cam.getTranslation().y)
+			if (floor.getPos().y - 80 < -game->cam.getTranslation().y)
 			{
 				std::random_device rd;
 				std::mt19937 gen(rd());
@@ -55,6 +55,34 @@ namespace Game
 			}
 			floor.update();
 		}
+	}
+
+	void FloorManager::restart()
+	{
+		bool first = true;
+		highestY = 300;
+		for (unsigned int i = 0; i < floors.size(); i++)
+		{
+			std::random_device rd;
+			std::mt19937 gen(rd());
+			if (i == 0)
+			{
+				std::uniform_real_distribution<float> distribution(0.0f, 1920.0f - floors[i].getSize().x);
+				floors[i].setPos(glm::vec2(distribution(gen), highestY));
+			}
+			else
+			{
+				float lowerX = floors[i - 1].getPos().x - (floors[i].getSize().x + maximumFloorOffset);
+				if (lowerX < 10) lowerX = 10.0f;
+				float greaterX = floors[i - 1].getPos().x + floors[i].getSize().x + maximumFloorOffset;
+				if (greaterX > 1920.0f - floors[i].getSize().x) greaterX = 1920.0f - floors[i].getSize().x;
+				std::uniform_real_distribution<float> distribution(lowerX, greaterX);
+				floors[i].setPos(glm::vec2(distribution(gen), highestY));
+			}
+			highestY += yDiff;
+			first = false;
+		}
+		highestFloor = &floors[floors.size() - 1];
 	}
 
 	const Floor& FloorManager::isColliding(Rectangle& hitbox) const

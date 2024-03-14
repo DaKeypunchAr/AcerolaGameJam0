@@ -45,6 +45,37 @@ namespace Game
 
 			glm::vec2 leftButtonPos, rightButtonPos, jumpButtonPos, scorePos;
 
+			/* Title */
+			OGL::Texture2D title;
+			OGL::VAO titleVAO;
+			float titleScaler = 15.0f;
+			glm::vec4 titleColor = glm::vec4(102, 15, 49, 255) / 255.0f;
+
+			/* Menu Buttons */
+			OGL::Texture2D playButton;
+			OGL::Texture2D aboutButton;
+			OGL::Texture2D exitButton;
+
+			OGL::VAO playVAO, aboutVAO, exitVAO;
+			float buttonScaler = 5.0f;
+
+			/* About Section */
+			OGL::Texture2D aboutPage;
+			OGL::VAO aboutPageVAO;
+			OGL::VAO backVAO;
+
+			/* Pause Section */
+			OGL::Texture2D pause;
+			OGL::Texture2D menu;
+			OGL::Texture2D restart;
+			OGL::VAO pauseVAO, menuVAO, restartVAO;
+
+			float pauseScaler = 3.0f, menuScaler = 5.0f, restartScaler = 5.0f;
+
+			bool setOnPlay = true, setOnRestart = false;
+
+			int prevIdx = -1;
+
 			Game* const game;
 	};
 }

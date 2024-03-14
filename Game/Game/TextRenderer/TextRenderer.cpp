@@ -118,37 +118,47 @@ namespace Game
 				}
 			};
 
+		glm::vec2 initialPosition = pos;
+
 		unsigned int ch = 0;
 		for (const char* c = text.c_str(); *c; c++, ch++)
 		{
-			unsigned int charIdx = (*c) - 32;
-			CharGlyphInfo info = chars[charIdx];
+			if (*c != '\n')
+			{
+				if (((*c) - 32) < 0) continue;
+				unsigned int charIdx = (*c) - 32;
+				CharGlyphInfo info = chars[charIdx];
 
-			glm::vec2 tl = glm::vec2(info.bearing) * scale + pos;
-			glm::vec2 br = (glm::vec2(info.bearing) + glm::vec2(info.dimension.x, -info.dimension.y)) * scale + pos;
+				glm::vec2 tl = glm::vec2(info.bearing) * scale + pos;
+				glm::vec2 br = (glm::vec2(info.bearing) + glm::vec2(info.dimension.x, -info.dimension.y)) * scale + pos;
 
-			vectorPush(posBuffer, {
-				tl.x, tl.y,
-				br.x, tl.y,
-				tl.x, br.y,
-				br.x, br.y,
-			});
+				vectorPush(posBuffer, {
+					tl.x, tl.y,
+					br.x, tl.y,
+					tl.x, br.y,
+					br.x, br.y,
+					});
 
-			vectorPush(texCoordsBuffer, {
-				info.uv.s, info.uv.t,
-				info.uv.s + info.normDimension.x, info.uv.t,
-				info.uv.s, info.uv.t + info.normDimension.t,
-				info.uv.s + info.normDimension.s, info.uv.t + info.normDimension.t
-			});
+				vectorPush(texCoordsBuffer, {
+					info.uv.s, info.uv.t,
+					info.uv.s + info.normDimension.x, info.uv.t,
+					info.uv.s, info.uv.t + info.normDimension.t,
+					info.uv.s + info.normDimension.s, info.uv.t + info.normDimension.t
+					});
 
-			vectorPush(colorBuffer, {
-					color.r, color.g, color.b, color.a,
-					color.r, color.g, color.b, color.a,
-					color.r, color.g, color.b, color.a,
-					color.r, color.g, color.b, color.a,
-			});
+				vectorPush(colorBuffer, {
+						color.r, color.g, color.b, color.a,
+						color.r, color.g, color.b, color.a,
+						color.r, color.g, color.b, color.a,
+						color.r, color.g, color.b, color.a,
+					});
 
-			pos += glm::vec2(info.advance) * scale;
+				pos += glm::vec2(info.advance) * scale;
+			}
+			else
+			{
+				pos = glm::vec2(initialPosition.x, pos.y - 30.0f * scale);
+			}
 		}
 
 		m_VAO.updateVB(0, posBuffer, 0);

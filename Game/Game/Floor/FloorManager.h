@@ -18,6 +18,8 @@ namespace Game
 			void drawFloors(const Camera& cam);
 			void update(double dt);
 
+			void restart();
+
 			const Floor& isColliding(Rectangle& hitbox) const;
 			glm::vec2 playerCoords() const;
 

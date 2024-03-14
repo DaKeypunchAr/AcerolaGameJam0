@@ -15,6 +15,14 @@ namespace Game
 		hitbox.setDimension(m_Size);
 	}
 
+	void Player::restart()
+	{
+		m_Position = game->floorManager.playerCoords();
+		hitbox.setPos(m_Position);
+		hitbox.setDimension(m_Size);
+		vel.y = 0;
+	}
+
 	void Player::update(double dt)
 	{
 		solveCollisions();
@@ -45,6 +53,11 @@ namespace Game
 
 		solveCollisions();
 		handleAnimation();
+
+		if (m_Position.y < -game->cam.getTranslation().y)
+		{
+			game->state = GameState::END;
+		}
 	}
 
     void Player::solveCollisions()

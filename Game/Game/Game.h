@@ -17,6 +17,15 @@ static OGL::TextureFilters pixelArtFilter = { GL_NEAREST, GL_REPEAT };
 
 namespace Game
 {
+	enum class GameState
+	{
+		PLAY,
+		MAIN_MENU,
+		PAUSE,
+		ABOUT,
+		END
+	};
+
 	class Game
 	{
 	public:
@@ -43,14 +52,15 @@ namespace Game
 		OGL::Program textProgram;
 
 		unsigned int leftButton = GLFW_KEY_A, rightButton = GLFW_KEY_D, jumpButton = GLFW_KEY_SPACE;
-		glm::ivec2 twistTimer = glm::ivec2(1);
+		glm::ivec2 twistTimer = randomTime();
 
-		TextTextureAtlas atlas;
+		int menuIdx = 0;
 
-		FloorManager floorManager;
+		mutable bool upPressed = false, downPressed = false, leftPressed = false, rightPressed = false;
 
-		Player player;
-		UI ui;
+		int waitCounter = 0;
+
+		GameState state = GameState::MAIN_MENU;
 
 		unsigned int score = 0;
 
@@ -60,6 +70,13 @@ namespace Game
 		glm::vec2 lastTranslation = glm::vec2(3.0f, 0.0f);
 
 		double lastTick = 0;
+
+		TextTextureAtlas atlas;
+
+		FloorManager floorManager;
+
+		Player player;
+		UI ui;
 
 		friend Player;
 	};

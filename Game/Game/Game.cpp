@@ -17,8 +17,11 @@ namespace Game
 
 	void Game::draw()
 	{
-		player.draw(gameTextureProgram, cam);
-		floorManager.drawFloors(cam);
+        if (state == GameState::PLAY || state == GameState::PAUSE)
+        {
+            player.draw(gameTextureProgram, cam);
+            floorManager.drawFloors(cam);
+        }
 		ui.drawUI();
 	}
 
@@ -26,40 +29,153 @@ namespace Game
 	{
 		double dt = glfwGetTime() - lastTick;
 
-		floorManager.update(dt);
-		player.update(dt);
-		ui.updateUI(dt);
 
-		if (twistTimer == glm::ivec2(0))
-		{
-			twistTimer = randomTime();
-            leftButton = randomKey();
-            rightButton = randomKey();
-            while (rightButton == leftButton) rightButton = randomKey();
-            jumpButton = randomKey();
-            while (jumpButton == leftButton || jumpButton == rightButton) jumpButton = randomKey();
-		}
-
-        if (cam.getTranslation() != camTranslation)
+        if (state == GameState::PLAY)
         {
-            if (lastTranslation == glm::vec2(3.0f, 0.0f))
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ESCAPE))
             {
-                lastCameraMoveTime = glfwGetTime();
-                lastTranslation = cam.getTranslation();
+                if (!waitCounter)
+                {
+                    waitCounter = 20;
+                    state = GameState::PAUSE;
+                    menuIdx = 0;
+                }
             }
-            else
+
+            floorManager.update(dt);
+            player.update(dt);
+
+            if (twistTimer == glm::ivec2(0))
             {
-                auto lerp = [](const glm::vec2& a, const glm::vec2& b, float t) {
-                    return (1.0f - t) * a + t * b;
-                };
-                cam.setTranslation(lerp(lastTranslation, camTranslation, (float)((glfwGetTime()-lastCameraMoveTime)*(glfwGetTime()-lastCameraMoveTime))));
+                twistTimer = randomTime();
+                leftButton = randomKey();
+                rightButton = randomKey();
+                while (rightButton == leftButton) rightButton = randomKey();
+                jumpButton = randomKey();
+                while (jumpButton == leftButton || jumpButton == rightButton) jumpButton = randomKey();
             }
-            if (((glfwGetTime() - lastCameraMoveTime) * (glfwGetTime() - lastCameraMoveTime)) > 1)
+
+            if (cam.getTranslation() != camTranslation)
             {
-                lastTranslation = glm::vec2(3.0f, 0.0f);
-                cam.setTranslation(camTranslation);
+                if (lastTranslation == glm::vec2(3.0f, 0.0f))
+                {
+                    lastCameraMoveTime = glfwGetTime();
+                    lastTranslation = cam.getTranslation();
+                }
+                else
+                {
+                    auto lerp = [](const glm::vec2& a, const glm::vec2& b, float t) {
+                        return (1.0f - t) * a + t * b;
+                        };
+                    cam.setTranslation(lerp(lastTranslation, camTranslation, (float)((glfwGetTime() - lastCameraMoveTime) * (glfwGetTime() - lastCameraMoveTime))));
+                }
+                if (((glfwGetTime() - lastCameraMoveTime) * (glfwGetTime() - lastCameraMoveTime)) > 1)
+                {
+                    lastTranslation = glm::vec2(3.0f, 0.0f);
+                    cam.setTranslation(camTranslation);
+                }
             }
         }
+        else if (state == GameState::MAIN_MENU)
+        {
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ESCAPE))
+            {
+                if (!waitCounter)
+                {
+                    glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
+                }
+            }
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_UP) || glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_W))
+            {
+                if (!upPressed)
+                {
+                    menuIdx--;
+                    upPressed = true;
+                }
+            }
+            else upPressed = false;
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_DOWN) || glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S))
+            {
+                if (!downPressed)
+                {
+                    menuIdx++;
+                    downPressed = true;
+                }
+            }
+            else downPressed = false;
+            if (menuIdx < 0) menuIdx = 0;
+            else if (menuIdx > 2) menuIdx = 2;
+
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ENTER))
+            {
+                if (!waitCounter)
+                {
+                    waitCounter = 20;
+                    if (menuIdx == 0)
+                    {
+                        floorManager.restart();
+                        player.restart();
+                        lastTranslation = camTranslation;
+                        camTranslation.y = 0;
+                        leftButton = GLFW_KEY_A;
+                        rightButton = GLFW_KEY_D;
+                        jumpButton = GLFW_KEY_SPACE;
+                        glm::ivec2 twistTimer = randomTime();
+                        state = GameState::PLAY;
+                    }
+                    if (menuIdx == 1) state = GameState::ABOUT;
+                    if (menuIdx == 2) glfwSetWindowShouldClose(glfwGetCurrentContext(), GLFW_TRUE);
+                }
+            }
+        }
+        else if (state == GameState::ABOUT)
+        {
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ENTER))
+            {
+                if (!waitCounter)
+                {
+                    state = GameState::MAIN_MENU;
+                    waitCounter = 20;
+                }
+            }
+            
+        }
+        else if (state == GameState::PAUSE || state == GameState::END)
+        {
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ESCAPE))
+            {
+                if (!waitCounter)
+                {
+                    state = (state == GameState::PAUSE) ? GameState::PLAY : GameState::MAIN_MENU;
+                    waitCounter = 20;
+                }
+            }
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_R))
+            {
+                floorManager.restart();
+                player.restart();
+                cam.setTranslation(glm::vec2(0));
+                leftButton = GLFW_KEY_A;
+                rightButton = GLFW_KEY_D;
+                jumpButton = GLFW_KEY_SPACE;
+                twistTimer = randomTime();
+                state = GameState::PLAY;
+            }
+
+            if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ENTER))
+            {
+                if (!waitCounter)
+                {
+                    waitCounter = 20;
+                    state = GameState::MAIN_MENU;
+                }
+            }
+        }
+
+        --waitCounter;
+        if (waitCounter < 0) waitCounter = 0;
+
+        ui.updateUI(dt);
 
 		lastTick = glfwGetTime();
 	}
@@ -118,7 +234,6 @@ namespace Game
     std::string Game::getKeyName(unsigned int key) const
     {
         switch (key) {
-            // Printable keys
         case GLFW_KEY_SPACE:
             return "Space";
         case GLFW_KEY_APOSTROPHE:

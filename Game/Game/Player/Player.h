@@ -16,6 +16,7 @@ namespace Game
 
 			void update(double dt);
 			void solveCollisions();
+			void restart();
 
 			void handleAnimation();
 

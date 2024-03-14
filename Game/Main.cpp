@@ -38,8 +38,6 @@ int main()
 			lastTime = glfwGetTime();
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) break;
-
 		glfwPollEvents();
 	}
 
